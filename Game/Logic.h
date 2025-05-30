@@ -19,7 +19,22 @@ class Logic
         optimization = (*config)("Bot", "Optimization");
     }
 
-    vector<move_pos> find_best_turns(const bool color); // Поиск лучших ходов
+    vector<move_pos> find_best_turns(const bool color) { // Поиск лучших ходов
+        next_move.clear(); // очистка состояний движения
+        next_best_state.clear(); //очистка состояния
+
+        find_first_best_turn(board->get_board(), color, -1, -1, 0); //координаты
+
+        vector<move_pos> res; // Вектор для ходов
+        int state = 0; //Начальное состояние
+        do {
+            res.push_back(next_move[state]); //След ход из текущего состояния
+            state = next_best_state[state]; // Переход в след состояние
+        } 
+        while (state != -1 || next_move[state].x != -1); //Проверка возможностей хода после съедания 
+        return res;
+    }
+
 
 private:
     vector<vector<POS_T>> make_turn(vector<vector<POS_T>> mtx, move_pos turn) const // Ход шашки с возвратов в матрицу
@@ -70,10 +85,89 @@ private:
     }
 
     double find_first_best_turn(vector<vector<POS_T>> mtx, const bool color, const POS_T x, const POS_T y, size_t state, // поиск первого лучшего хода
-        double alpha = -1);
+        double alpha = -1) {
+        next_move.emplace_back(-1, -1, -1, -1); // Пустой ход
+        next_best_state.push_back(-1);
+        if (state != 0) {
+            find_turns(x, y, mtx);
+        }
+        auto now_turns = turns;
+        auto now_have_beats = have_beats; //Копии доступных ходов
+
+        if (!now_have_beats && state != 0) { // Состояние, где больше нет ходов
+           return find_best_turns_rec(mtx, 1 - color, 0, alpha);
+        }
+        double best_score = 1;
+        for (auto turn : now_turns){ //Перебор всех ходов для движения шашки
+            size_t new_state = next_move.size(); //Переменная нового состояния
+            double score;
+            if (now_have_beats) {
+                find_first_best_turn(make_turn(mtx, turn), color, turn.x2, turn.y2, new_state, best_score); // Продолжение хода после съедание шашки
+            }
+            else {
+                score = find_best_turns_rec(make_turn(mtx, turn), 1 - color, 0, best_score); //Никого не съедаем и переходим в рекурсию
+
+            }
+            if (score > best_score) { // Проверка результата, нахождение оптимального хода
+                best_score = score;
+                next_move[state] = turn;
+                next_best_state[state] = (now_have_beats ? new_state : -1);
+            }
+        }
+        return best_score; //Возврат результата
+    }
+
     
     double find_best_turns_rec(vector<vector<POS_T>> mtx, const bool color, const size_t depth, double alpha = -1, // поиск лучшего хода после предыдущего лучшего хода
-        double beta = INF + 1, const POS_T x = -1, const POS_T y = -1);
+        double beta = INF + 1, const POS_T x = -1, const POS_T y = -1) {
+        if (depth == Max_depth) {
+            return calc_score(mtx, (depth % 2 == color)); // Возвращение подсчета очков
+        }
+        if (x != -1) {
+            find_turns(x, y, mtx); // Ищем серию пробитий
+        }
+        else {
+            find_turns(color, mtx); // Возможные ходы от цвета
+        }
+        auto now_turns = turns;
+        auto now_have_beats = have_beats;
+        if (!now_have_beats && x != -1) {
+           return find_best_turns_rec(mtx, 1 - color, depth + 1, alpha, beta); //Поиск наилучшего хода в рекурсии
+        }
+
+        if (turns.empty()) {
+            return (depth % 2 ? 0 : INF); //Проверка есть ли ходы, проигрыш из-за отсутвия ходов или выигрыш
+        }
+
+        double min_score = INF + 1; //Минмакс алгоритм
+        double max_score = -1;
+        for (auto turn : now_turns) {
+            double score;
+            if (now_have_beats) {
+                score = find_best_turns_rec(make_turn(mtx, turn), color, depth, alpha, beta, turn.x2, turn.y2); // Если есть возможность съесть, продолжение хода, если нет, возврат в рекурсию
+            }
+            else {
+                score = find_best_turns_rec(make_turn(mtx, turn), 1 - color, depth + 1, alpha, beta); //Если нет возможности съесть
+            }
+            min_score = min(min_score, score);
+            max_score = max(max_score, score);
+            
+            if (depth & 2) { // Альфа и бета отсечения, чтобы бот работал быстрее и оптимизированние
+                alpha = max(alpha, max_score);
+            }
+            else {
+                beta = min(beta, min_score);
+            }
+            if (optimization != "00" && alpha == beta) { //Строгое отсечение
+                break;
+            }
+            if (optimization == "02" && alpha == beta) { //Не строгое отсечение
+                return (depth % 2 ? max_score + 1 : min_score - 1);
+            }
+        }
+        return (depth % 2 ? max_score : min_score); //Определение хода нашего или нет
+    }
+
     
 public:
     void find_turns(const bool color) // Поиск хода по цвету
