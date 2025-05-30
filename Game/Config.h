@@ -13,7 +13,7 @@ class Config
         reload();
     }
 
-    void reload() //Загружает файл с именем setings.json по пути корня проекта
+    void reload() //Загружает фaйл с именем setings.json по пути корня проекта
     {
         std::ifstream fin(project_path + "settings.json");
         fin >> config;

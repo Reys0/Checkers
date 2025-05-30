@@ -181,7 +181,7 @@ public:
         clear_active();
     }
 
-    void show_final(const int res) //Показать результат
+    void show_final(const int res) //Показaть результат
     {
         game_results = res;
         rerender();

@@ -9,7 +9,7 @@ struct move_pos
     POS_T x2, y2;           // to
     POS_T xb = -1, yb = -1; // beaten
 
-    move_pos(const POS_T x, const POS_T y, const POS_T x2, const POS_T y2) : x(x), y(y), x2(x2), y2(y2) // Конструктор без съедения шашки
+    move_pos(const POS_T x, const POS_T y, const POS_T x2, const POS_T y2) : x(x), y(y), x2(x2), y2(y2) // Конструктор без съедения шaшки
     {
     }
     move_pos(const POS_T x, const POS_T y, const POS_T x2, const POS_T y2, const POS_T xb, const POS_T yb) //Конструктор с съедением шашки

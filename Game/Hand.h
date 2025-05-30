@@ -64,7 +64,7 @@ class Hand
         return {resp, xc, yc};
     }
 
-    Response wait() const // Дублирование логики для получения действия в самом конце игры
+    Response wait() const // Дублирование логики для получения действия в сaмом конце игры
     {
         SDL_Event windowEvent;
         Response resp = Response::OK;

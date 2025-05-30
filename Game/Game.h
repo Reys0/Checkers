@@ -117,7 +117,7 @@ class Game
         // making moves
         for (auto turn : turns)
         {
-            if (!is_first) //Если ход бота не первый, попытка сделать таймаут
+            if (!is_first) //Если ход бота не первый, попытка сделaть таймаут
             {
                 SDL_Delay(delay_ms);
             }

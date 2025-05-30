@@ -11,7 +11,7 @@ const int INF = 1e9;
 class Logic
 {
   public:
-    Logic(Board *board, Config *config) : board(board), config(config) // Конфиг бота, подсчет бота, оптимизация бота
+    Logic(Board *board, Config *config) : board(board), config(config) // Конфиг бота, подсчет бота, оптимизация ботa
     {
         rand_eng = std::default_random_engine (
             !((*config)("Bot", "NoRandom")) ? unsigned(time(0)) : 0);
