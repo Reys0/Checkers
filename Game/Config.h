@@ -8,19 +8,19 @@ using json = nlohmann::json;
 class Config
 {
   public:
-    Config()
+    Config() 
     {
         reload();
     }
 
-    void reload()
+    void reload() //Загружает файл с именем setings.json по пути корня проекта
     {
         std::ifstream fin(project_path + "settings.json");
         fin >> config;
         fin.close();
     }
 
-    auto operator()(const string &setting_dir, const string &setting_name) const
+    auto operator()(const string &setting_dir, const string &setting_name) const //Это функция для получения настройки второго уровня в json
     {
         return config[setting_dir][setting_name];
     }

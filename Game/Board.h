@@ -27,54 +27,54 @@ public:
     // draws start board
     int start_draw()
     {
-        if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+        if (SDL_Init(SDL_INIT_EVERYTHING) != 0) //Попытка инициализировать библиотеку
         {
             print_exception("SDL_Init can't init SDL2 lib");
             return 1;
         }
-        if (W == 0 || H == 0)
+        if (W == 0 || H == 0) //Если не заданы размеры окна
         {
             SDL_DisplayMode dm;
-            if (SDL_GetDesktopDisplayMode(0, &dm))
+            if (SDL_GetDesktopDisplayMode(0, &dm)) //Попытка получить режим отображения
             {
                 print_exception("SDL_GetDesktopDisplayMode can't get desctop display mode");
                 return 1;
             }
-            W = min(dm.w, dm.h);
+            W = min(dm.w, dm.h); //Попытка определить наименьшую грань
             W -= W / 15;
             H = W;
         }
-        win = SDL_CreateWindow("Checkers", 0, H / 30, W, H, SDL_WINDOW_RESIZABLE);
+        win = SDL_CreateWindow("Checkers", 0, H / 30, W, H, SDL_WINDOW_RESIZABLE); //Создать окно
         if (win == nullptr)
         {
             print_exception("SDL_CreateWindow can't create window");
             return 1;
         }
-        ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); //Создать рендер
         if (ren == nullptr)
         {
             print_exception("SDL_CreateRenderer can't create renderer");
             return 1;
         }
-        board = IMG_LoadTexture(ren, board_path.c_str());
-        w_piece = IMG_LoadTexture(ren, piece_white_path.c_str());
+        board = IMG_LoadTexture(ren, board_path.c_str()); //Выгрузить картинку доски
+        w_piece = IMG_LoadTexture(ren, piece_white_path.c_str()); //Выгрузить картинки шашок
         b_piece = IMG_LoadTexture(ren, piece_black_path.c_str());
         w_queen = IMG_LoadTexture(ren, queen_white_path.c_str());
         b_queen = IMG_LoadTexture(ren, queen_black_path.c_str());
-        back = IMG_LoadTexture(ren, back_path.c_str());
-        replay = IMG_LoadTexture(ren, replay_path.c_str());
-        if (!board || !w_piece || !b_piece || !w_queen || !b_queen || !back || !replay)
+        back = IMG_LoadTexture(ren, back_path.c_str()); // Выгрузить картинку отмены действия
+        replay = IMG_LoadTexture(ren, replay_path.c_str()); // Выгрузить картинку кнопки заново
+        if (!board || !w_piece || !b_piece || !w_queen || !b_queen || !back || !replay) // Если не удалось загрузить хотя бы одну картинку 
         {
-            print_exception("IMG_LoadTexture can't load main textures from " + textures_path);
+            print_exception("IMG_LoadTexture can't load main textures from " + textures_path);//Выдать текстовую ошибку
             return 1;
         }
         SDL_GetRendererOutputSize(ren, &W, &H);
-        make_start_mtx();
-        rerender();
+        make_start_mtx(); // Инициализировать игровую матрицу
+        rerender(); // Отрисовать
         return 0;
     }
 
-    void redraw()
+    void redraw() //Перерисовать весь экран
     {
         game_results = -1;
         history_mtx.clear();
@@ -84,7 +84,7 @@ public:
         clear_highlight();
     }
 
-    void move_piece(move_pos turn, const int beat_series = 0)
+    void move_piece(move_pos turn, const int beat_series = 0) //Перерисовать положение шашки
     {
         if (turn.xb != -1)
         {
@@ -93,7 +93,7 @@ public:
         move_piece(turn.x, turn.y, turn.x2, turn.y2, beat_series);
     }
 
-    void move_piece(const POS_T i, const POS_T j, const POS_T i2, const POS_T j2, const int beat_series = 0)
+    void move_piece(const POS_T i, const POS_T j, const POS_T i2, const POS_T j2, const int beat_series = 0) //Перерисовать положение шашки
     {
         if (mtx[i2][j2])
         {
@@ -110,13 +110,13 @@ public:
         add_history(beat_series);
     }
 
-    void drop_piece(const POS_T i, const POS_T j)
+    void drop_piece(const POS_T i, const POS_T j) // Пометить клетку пустой
     {
         mtx[i][j] = 0;
         rerender();
     }
 
-    void turn_into_queen(const POS_T i, const POS_T j)
+    void turn_into_queen(const POS_T i, const POS_T j) //Заменить фигурку/картинку на даму
     {
         if (mtx[i][j] == 0 || mtx[i][j] > 2)
         {
@@ -130,7 +130,7 @@ public:
         return mtx;
     }
 
-    void highlight_cells(vector<pair<POS_T, POS_T>> cells)
+    void highlight_cells(vector<pair<POS_T, POS_T>> cells) //Покрасить клетки
     {
         for (auto pos : cells)
         {
@@ -140,7 +140,7 @@ public:
         rerender();
     }
 
-    void clear_highlight()
+    void clear_highlight() //Отчистить подсветку клетки
     {
         for (POS_T i = 0; i < 8; ++i)
         {
@@ -149,26 +149,26 @@ public:
         rerender();
     }
 
-    void set_active(const POS_T x, const POS_T y)
+    void set_active(const POS_T x, const POS_T y) //Пометить активной
     {
         active_x = x;
         active_y = y;
         rerender();
     }
 
-    void clear_active()
+    void clear_active() //Отчистить активную клетку
     {
         active_x = -1;
         active_y = -1;
         rerender();
     }
 
-    bool is_highlighted(const POS_T x, const POS_T y)
+    bool is_highlighted(const POS_T x, const POS_T y) //Проверка на подсветку клетки
     {
         return is_highlighted_[x][y];
     }
 
-    void rollback()
+    void rollback() //Откат действия, отмена хода
     {
         auto beat_series = max(1, *(history_beat_series.rbegin()));
         while (beat_series-- && history_mtx.size() > 1)
@@ -181,20 +181,20 @@ public:
         clear_active();
     }
 
-    void show_final(const int res)
+    void show_final(const int res) //Показать результат
     {
         game_results = res;
         rerender();
     }
 
     // use if window size changed
-    void reset_window_size()
+    void reset_window_size() 
     {
         SDL_GetRendererOutputSize(ren, &W, &H);
         rerender();
     }
 
-    void quit()
+    void quit() 
     {
         SDL_DestroyTexture(board);
         SDL_DestroyTexture(w_piece);

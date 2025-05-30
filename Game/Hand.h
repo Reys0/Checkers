@@ -20,38 +20,38 @@ class Hand
         int xc = -1, yc = -1;
         while (true)
         {
-            if (SDL_PollEvent(&windowEvent))
+            if (SDL_PollEvent(&windowEvent)) // Если было получено какое-то действие
             {
                 switch (windowEvent.type)
                 {
-                case SDL_QUIT:
+                case SDL_QUIT: // Нажатие крестика
                     resp = Response::QUIT;
                     break;
-                case SDL_MOUSEBUTTONDOWN:
+                case SDL_MOUSEBUTTONDOWN: // Была нажата кнопка мыши
                     x = windowEvent.motion.x;
                     y = windowEvent.motion.y;
                     xc = int(y / (board->H / 10) - 1);
                     yc = int(x / (board->W / 10) - 1);
-                    if (xc == -1 && yc == -1 && board->history_mtx.size() > 1)
+                    if (xc == -1 && yc == -1 && board->history_mtx.size() > 1) // Если была выбрана не клетка, то отмена хода
                     {
                         resp = Response::BACK;
                     }
-                    else if (xc == -1 && yc == 8)
+                    else if (xc == -1 && yc == 8) //Если нажата кнопка перезапуска
                     {
                         resp = Response::REPLAY;
                     }
-                    else if (xc >= 0 && xc < 8 && yc >= 0 && yc < 8)
+                    else if (xc >= 0 && xc < 8 && yc >= 0 && yc < 8) //Если был выбран элемент на поле
                     {
                         resp = Response::CELL;
                     }
-                    else
+                    else // Во всех остальных случаях
                     {
                         xc = -1;
                         yc = -1;
                     }
                     break;
-                case SDL_WINDOWEVENT:
-                    if (windowEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+                case SDL_WINDOWEVENT: //Какие-то действия с окном
+                    if (windowEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) // Измениили размер окна
                     {
                         board->reset_window_size();
                         break;
@@ -64,7 +64,7 @@ class Hand
         return {resp, xc, yc};
     }
 
-    Response wait() const
+    Response wait() const // Дублирование логики для получения действия в самом конце игры
     {
         SDL_Event windowEvent;
         Response resp = Response::OK;
