@@ -20,38 +20,38 @@ class Hand
         int xc = -1, yc = -1;
         while (true)
         {
-            if (SDL_PollEvent(&windowEvent)) // Если было получено какое-то действие
+            if (SDL_PollEvent(&windowEvent)) // Р•СЃР»Рё Р±С‹Р»Рѕ РїРѕР»СѓС‡РµРЅРѕ РєР°РєРѕРµ-С‚Рѕ РґРµР№СЃС‚РІРёРµ
             {
                 switch (windowEvent.type)
                 {
-                case SDL_QUIT: // Нажатие крестика
+                case SDL_QUIT: // РќР°Р¶Р°С‚РёРµ РєСЂРµСЃС‚РёРєР°
                     resp = Response::QUIT;
                     break;
-                case SDL_MOUSEBUTTONDOWN: // Была нажата кнопка мыши
+                case SDL_MOUSEBUTTONDOWN: // Р‘С‹Р»Р° РЅР°Р¶Р°С‚Р° РєРЅРѕРїРєР° РјС‹С€Рё
                     x = windowEvent.motion.x;
                     y = windowEvent.motion.y;
                     xc = int(y / (board->H / 10) - 1);
                     yc = int(x / (board->W / 10) - 1);
-                    if (xc == -1 && yc == -1 && board->history_mtx.size() > 1) // Если была выбрана не клетка, то отмена хода
+                    if (xc == -1 && yc == -1 && board->history_mtx.size() > 1) // Р•СЃР»Рё Р±С‹Р»Р° РІС‹Р±СЂР°РЅР° РЅРµ РєР»РµС‚РєР°, С‚Рѕ РѕС‚РјРµРЅР° С…РѕРґР°
                     {
                         resp = Response::BACK;
                     }
-                    else if (xc == -1 && yc == 8) //Если нажата кнопка перезапуска
+                    else if (xc == -1 && yc == 8) //Р•СЃР»Рё РЅР°Р¶Р°С‚Р° РєРЅРѕРїРєР° РїРµСЂРµР·Р°РїСѓСЃРєР°
                     {
                         resp = Response::REPLAY;
                     }
-                    else if (xc >= 0 && xc < 8 && yc >= 0 && yc < 8) //Если был выбран элемент на поле
+                    else if (xc >= 0 && xc < 8 && yc >= 0 && yc < 8) //Р•СЃР»Рё Р±С‹Р» РІС‹Р±СЂР°РЅ СЌР»РµРјРµРЅС‚ РЅР° РїРѕР»Рµ
                     {
                         resp = Response::CELL;
                     }
-                    else // Во всех остальных случаях
+                    else // Р’Рѕ РІСЃРµС… РѕСЃС‚Р°Р»СЊРЅС‹С… СЃР»СѓС‡Р°СЏС…
                     {
                         xc = -1;
                         yc = -1;
                     }
                     break;
-                case SDL_WINDOWEVENT: //Какие-то действия с окном
-                    if (windowEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) // Измениили размер окна
+                case SDL_WINDOWEVENT: //РљР°РєРёРµ-С‚Рѕ РґРµР№СЃС‚РІРёСЏ СЃ РѕРєРЅРѕРј
+                    if (windowEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) // РР·РјРµРЅРёРёР»Рё СЂР°Р·РјРµСЂ РѕРєРЅР°
                     {
                         board->reset_window_size();
                         break;
@@ -64,7 +64,7 @@ class Hand
         return {resp, xc, yc};
     }
 
-    Response wait() const // Дублирование логики для получения действия в сaмом конце игры
+    Response wait() const // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ Р»РѕРіРёРєРё РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РґРµР№СЃС‚РІРёСЏ РІ СЃaРјРѕРј РєРѕРЅС†Рµ РёРіСЂС‹
     {
         SDL_Event windowEvent;
         Response resp = Response::OK;

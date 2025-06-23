@@ -13,14 +13,14 @@ class Config
         reload();
     }
 
-    void reload() //Загружает фaйл с именем setings.json по пути корня проекта
+    void reload() //Р—Р°РіСЂСѓР¶Р°РµС‚ С„aР№Р» СЃ РёРјРµРЅРµРј setings.json РїРѕ РїСѓС‚Рё РєРѕСЂРЅСЏ РїСЂРѕРµРєС‚Р°
     {
         std::ifstream fin(project_path + "settings.json");
         fin >> config;
         fin.close();
     }
 
-    auto operator()(const string &setting_dir, const string &setting_name) const //Это функция для получения настройки второго уровня в json
+    auto operator()(const string &setting_dir, const string &setting_name) const //Р­С‚Рѕ С„СѓРЅРєС†РёСЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РЅР°СЃС‚СЂРѕР№РєРё РІС‚РѕСЂРѕРіРѕ СѓСЂРѕРІРЅСЏ РІ json
     {
         return config[setting_dir][setting_name];
     }

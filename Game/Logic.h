@@ -11,7 +11,7 @@ const int INF = 1e9;
 class Logic
 {
   public:
-    Logic(Board *board, Config *config) : board(board), config(config) // Конфиг бота, подсчет бота, оптимизация ботa
+    Logic(Board *board, Config *config) : board(board), config(config) // РљРѕРЅС„РёРі Р±РѕС‚Р°, РїРѕРґСЃС‡РµС‚ Р±РѕС‚Р°, РѕРїС‚РёРјРёР·Р°С†РёСЏ Р±РѕС‚a
     {
         rand_eng = std::default_random_engine (
             !((*config)("Bot", "NoRandom")) ? unsigned(time(0)) : 0);
@@ -19,25 +19,25 @@ class Logic
         optimization = (*config)("Bot", "Optimization");
     }
 
-    vector<move_pos> find_best_turns(const bool color) { // Поиск лучших ходов
-        next_move.clear(); // очистка состояний движения
-        next_best_state.clear(); //очистка состояния
+    vector<move_pos> find_best_turns(const bool color) { // РџРѕРёСЃРє Р»СѓС‡С€РёС… С…РѕРґРѕРІ
+        next_move.clear(); // РѕС‡РёСЃС‚РєР° СЃРѕСЃС‚РѕСЏРЅРёР№ РґРІРёР¶РµРЅРёСЏ
+        next_best_state.clear(); //РѕС‡РёСЃС‚РєР° СЃРѕСЃС‚РѕСЏРЅРёСЏ
 
-        find_first_best_turn(board->get_board(), color, -1, -1, 0); //координаты
+        find_first_best_turn(board->get_board(), color, -1, -1, 0); //РєРѕРѕСЂРґРёРЅР°С‚С‹
 
-        vector<move_pos> res; // Вектор для ходов
-        int state = 0; //Начальное состояние
+        vector<move_pos> res; // Р’РµРєС‚РѕСЂ РґР»СЏ С…РѕРґРѕРІ
+        int state = 0; //РќР°С‡Р°Р»СЊРЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
         do {
-            res.push_back(next_move[state]); //След ход из текущего состояния
-            state = next_best_state[state]; // Переход в след состояние
+            res.push_back(next_move[state]); //РЎР»РµРґ С…РѕРґ РёР· С‚РµРєСѓС‰РµРіРѕ СЃРѕСЃС‚РѕСЏРЅРёСЏ
+            state = next_best_state[state]; // РџРµСЂРµС…РѕРґ РІ СЃР»РµРґ СЃРѕСЃС‚РѕСЏРЅРёРµ
         } 
-        while (state != -1 || next_move[state].x != -1); //Проверка возможностей хода после съедания 
+        while (state != -1 || next_move[state].x != -1); //РџСЂРѕРІРµСЂРєР° РІРѕР·РјРѕР¶РЅРѕСЃС‚РµР№ С…РѕРґР° РїРѕСЃР»Рµ СЃСЉРµРґР°РЅРёСЏ 
         return res;
     }
 
 
 private:
-    vector<vector<POS_T>> make_turn(vector<vector<POS_T>> mtx, move_pos turn) const // Ход шашки с возвратов в матрицу
+    vector<vector<POS_T>> make_turn(vector<vector<POS_T>> mtx, move_pos turn) const // РҐРѕРґ С€Р°С€РєРё СЃ РІРѕР·РІСЂР°С‚РѕРІ РІ РјР°С‚СЂРёС†Сѓ
     {
         if (turn.xb != -1)
             mtx[turn.xb][turn.yb] = 0;
@@ -48,7 +48,7 @@ private:
         return mtx;
     }
 
-    double calc_score(const vector<vector<POS_T>> &mtx, const bool first_bot_color) const // Калькулятор очков
+    double calc_score(const vector<vector<POS_T>> &mtx, const bool first_bot_color) const // РљР°Р»СЊРєСѓР»СЏС‚РѕСЂ РѕС‡РєРѕРІ
     {
         // color - who is max player
         double w = 0, wq = 0, b = 0, bq = 0; 
@@ -67,7 +67,7 @@ private:
                 }
             }
         }
-        if (!first_bot_color) // Перемена, если первым ходил бот
+        if (!first_bot_color) // РџРµСЂРµРјРµРЅР°, РµСЃР»Рё РїРµСЂРІС‹Рј С…РѕРґРёР» Р±РѕС‚
         {
             swap(b, w);
             swap(bq, wq);
@@ -76,115 +76,115 @@ private:
             return INF;
         if (b + bq == 0)
             return 0;
-        int q_coef = 4; //Коэф для дамок
+        int q_coef = 4; //РљРѕСЌС„ РґР»СЏ РґР°РјРѕРє
         if (scoring_mode == "NumberAndPotential") 
         {
-            q_coef = 5; // Коэф для дамок, если используется вариант выше
+            q_coef = 5; // РљРѕСЌС„ РґР»СЏ РґР°РјРѕРє, РµСЃР»Рё РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІР°СЂРёР°РЅС‚ РІС‹С€Рµ
         }
-        return (b + bq * q_coef) / (w + wq * q_coef); //Возврат с расчетом очков
+        return (b + bq * q_coef) / (w + wq * q_coef); //Р’РѕР·РІСЂР°С‚ СЃ СЂР°СЃС‡РµС‚РѕРј РѕС‡РєРѕРІ
     }
 
-    double find_first_best_turn(vector<vector<POS_T>> mtx, const bool color, const POS_T x, const POS_T y, size_t state, // поиск первого лучшего хода
+    double find_first_best_turn(vector<vector<POS_T>> mtx, const bool color, const POS_T x, const POS_T y, size_t state, // РїРѕРёСЃРє РїРµСЂРІРѕРіРѕ Р»СѓС‡С€РµРіРѕ С…РѕРґР°
         double alpha = -1) {
-        next_move.emplace_back(-1, -1, -1, -1); // Пустой ход
+        next_move.emplace_back(-1, -1, -1, -1); // РџСѓСЃС‚РѕР№ С…РѕРґ
         next_best_state.push_back(-1);
         if (state != 0) {
             find_turns(x, y, mtx);
         }
         auto now_turns = turns;
-        auto now_have_beats = have_beats; //Копии доступных ходов
+        auto now_have_beats = have_beats; //РљРѕРїРёРё РґРѕСЃС‚СѓРїРЅС‹С… С…РѕРґРѕРІ
 
-        if (!now_have_beats && state != 0) { // Состояние, где больше нет ходов
+        if (!now_have_beats && state != 0) { // РЎРѕСЃС‚РѕСЏРЅРёРµ, РіРґРµ Р±РѕР»СЊС€Рµ РЅРµС‚ С…РѕРґРѕРІ
            return find_best_turns_rec(mtx, 1 - color, 0, alpha);
         }
         double best_score = 1;
-        for (auto turn : now_turns){ //Перебор всех ходов для движения шашки
-            size_t new_state = next_move.size(); //Переменная нового состояния
+        for (auto turn : now_turns){ //РџРµСЂРµР±РѕСЂ РІСЃРµС… С…РѕРґРѕРІ РґР»СЏ РґРІРёР¶РµРЅРёСЏ С€Р°С€РєРё
+            size_t new_state = next_move.size(); //РџРµСЂРµРјРµРЅРЅР°СЏ РЅРѕРІРѕРіРѕ СЃРѕСЃС‚РѕСЏРЅРёСЏ
             double score;
             if (now_have_beats) {
-                find_first_best_turn(make_turn(mtx, turn), color, turn.x2, turn.y2, new_state, best_score); // Продолжение хода после съедание шашки
+                find_first_best_turn(make_turn(mtx, turn), color, turn.x2, turn.y2, new_state, best_score); // РџСЂРѕРґРѕР»Р¶РµРЅРёРµ С…РѕРґР° РїРѕСЃР»Рµ СЃСЉРµРґР°РЅРёРµ С€Р°С€РєРё
             }
             else {
-                score = find_best_turns_rec(make_turn(mtx, turn), 1 - color, 0, best_score); //Никого не съедаем и переходим в рекурсию
+                score = find_best_turns_rec(make_turn(mtx, turn), 1 - color, 0, best_score); //РќРёРєРѕРіРѕ РЅРµ СЃСЉРµРґР°РµРј Рё РїРµСЂРµС…РѕРґРёРј РІ СЂРµРєСѓСЂСЃРёСЋ
 
             }
-            if (score > best_score) { // Проверка результата, нахождение оптимального хода
+            if (score > best_score) { // РџСЂРѕРІРµСЂРєР° СЂРµР·СѓР»СЊС‚Р°С‚Р°, РЅР°С…РѕР¶РґРµРЅРёРµ РѕРїС‚РёРјР°Р»СЊРЅРѕРіРѕ С…РѕРґР°
                 best_score = score;
                 next_move[state] = turn;
                 next_best_state[state] = (now_have_beats ? new_state : -1);
             }
         }
-        return best_score; //Возврат результата
+        return best_score; //Р’РѕР·РІСЂР°С‚ СЂРµР·СѓР»СЊС‚Р°С‚Р°
     }
 
     
-    double find_best_turns_rec(vector<vector<POS_T>> mtx, const bool color, const size_t depth, double alpha = -1, // поиск лучшего хода после предыдущего лучшего хода
+    double find_best_turns_rec(vector<vector<POS_T>> mtx, const bool color, const size_t depth, double alpha = -1, // РїРѕРёСЃРє Р»СѓС‡С€РµРіРѕ С…РѕРґР° РїРѕСЃР»Рµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ Р»СѓС‡С€РµРіРѕ С…РѕРґР°
         double beta = INF + 1, const POS_T x = -1, const POS_T y = -1) {
         if (depth == Max_depth) {
-            return calc_score(mtx, (depth % 2 == color)); // Возвращение подсчета очков
+            return calc_score(mtx, (depth % 2 == color)); // Р’РѕР·РІСЂР°С‰РµРЅРёРµ РїРѕРґСЃС‡РµС‚Р° РѕС‡РєРѕРІ
         }
         if (x != -1) {
-            find_turns(x, y, mtx); // Ищем серию пробитий
+            find_turns(x, y, mtx); // РС‰РµРј СЃРµСЂРёСЋ РїСЂРѕР±РёС‚РёР№
         }
         else {
-            find_turns(color, mtx); // Возможные ходы от цвета
+            find_turns(color, mtx); // Р’РѕР·РјРѕР¶РЅС‹Рµ С…РѕРґС‹ РѕС‚ С†РІРµС‚Р°
         }
         auto now_turns = turns;
         auto now_have_beats = have_beats;
         if (!now_have_beats && x != -1) {
-           return find_best_turns_rec(mtx, 1 - color, depth + 1, alpha, beta); //Поиск наилучшего хода в рекурсии
+           return find_best_turns_rec(mtx, 1 - color, depth + 1, alpha, beta); //РџРѕРёСЃРє РЅР°РёР»СѓС‡С€РµРіРѕ С…РѕРґР° РІ СЂРµРєСѓСЂСЃРёРё
         }
 
         if (turns.empty()) {
-            return (depth % 2 ? 0 : INF); //Проверка есть ли ходы, проигрыш из-за отсутвия ходов или выигрыш
+            return (depth % 2 ? 0 : INF); //РџСЂРѕРІРµСЂРєР° РµСЃС‚СЊ Р»Рё С…РѕРґС‹, РїСЂРѕРёРіСЂС‹С€ РёР·-Р·Р° РѕС‚СЃСѓС‚РІРёСЏ С…РѕРґРѕРІ РёР»Рё РІС‹РёРіСЂС‹С€
         }
 
-        double min_score = INF + 1; //Минмакс алгоритм
+        double min_score = INF + 1; //РњРёРЅРјР°РєСЃ Р°Р»РіРѕСЂРёС‚Рј
         double max_score = -1;
         for (auto turn : now_turns) {
             double score;
             if (now_have_beats) {
-                score = find_best_turns_rec(make_turn(mtx, turn), color, depth, alpha, beta, turn.x2, turn.y2); // Если есть возможность съесть, продолжение хода, если нет, возврат в рекурсию
+                score = find_best_turns_rec(make_turn(mtx, turn), color, depth, alpha, beta, turn.x2, turn.y2); // Р•СЃР»Рё РµСЃС‚СЊ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ СЃСЉРµСЃС‚СЊ, РїСЂРѕРґРѕР»Р¶РµРЅРёРµ С…РѕРґР°, РµСЃР»Рё РЅРµС‚, РІРѕР·РІСЂР°С‚ РІ СЂРµРєСѓСЂСЃРёСЋ
             }
             else {
-                score = find_best_turns_rec(make_turn(mtx, turn), 1 - color, depth + 1, alpha, beta); //Если нет возможности съесть
+                score = find_best_turns_rec(make_turn(mtx, turn), 1 - color, depth + 1, alpha, beta); //Р•СЃР»Рё РЅРµС‚ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё СЃСЉРµСЃС‚СЊ
             }
             min_score = min(min_score, score);
             max_score = max(max_score, score);
             
-            if (depth & 2) { // Альфа и бета отсечения, чтобы бот работал быстрее и оптимизированние
+            if (depth & 2) { // РђР»СЊС„Р° Рё Р±РµС‚Р° РѕС‚СЃРµС‡РµРЅРёСЏ, С‡С‚РѕР±С‹ Р±РѕС‚ СЂР°Р±РѕС‚Р°Р» Р±С‹СЃС‚СЂРµРµ Рё РѕРїС‚РёРјРёР·РёСЂРѕРІР°РЅРЅРёРµ
                 alpha = max(alpha, max_score);
             }
             else {
                 beta = min(beta, min_score);
             }
-            if (optimization != "00" && alpha == beta) { //Строгое отсечение
+            if (optimization != "00" && alpha == beta) { //РЎС‚СЂРѕРіРѕРµ РѕС‚СЃРµС‡РµРЅРёРµ
                 break;
             }
-            if (optimization == "02" && alpha == beta) { //Не строгое отсечение
+            if (optimization == "02" && alpha == beta) { //РќРµ СЃС‚СЂРѕРіРѕРµ РѕС‚СЃРµС‡РµРЅРёРµ
                 return (depth % 2 ? max_score + 1 : min_score - 1);
             }
         }
-        return (depth % 2 ? max_score : min_score); //Определение хода нашего или нет
+        return (depth % 2 ? max_score : min_score); //РћРїСЂРµРґРµР»РµРЅРёРµ С…РѕРґР° РЅР°С€РµРіРѕ РёР»Рё РЅРµС‚
     }
 
     
 public:
-    void find_turns(const bool color) // Поиск хода по цвету
+    void find_turns(const bool color) // РџРѕРёСЃРє С…РѕРґР° РїРѕ С†РІРµС‚Сѓ
     {
         find_turns(color, board->get_board());
     }
 
-    void find_turns(const POS_T x, const POS_T y) // Поиск хода по позиции
+    void find_turns(const POS_T x, const POS_T y) // РџРѕРёСЃРє С…РѕРґР° РїРѕ РїРѕР·РёС†РёРё
     {
         find_turns(x, y, board->get_board());
     }
 
 private:
-    void find_turns(const bool color, const vector<vector<POS_T>> &mtx) // поиск ходов от цвета и матрицы
+    void find_turns(const bool color, const vector<vector<POS_T>> &mtx) // РїРѕРёСЃРє С…РѕРґРѕРІ РѕС‚ С†РІРµС‚Р° Рё РјР°С‚СЂРёС†С‹
     {
         vector<move_pos> res_turns;
-        bool have_beats_before = false; // Движение шашки с возможностью съесть
+        bool have_beats_before = false; // Р”РІРёР¶РµРЅРёРµ С€Р°С€РєРё СЃ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊСЋ СЃСЉРµСЃС‚СЊ
         for (POS_T i = 0; i < 8; ++i)
         {
             for (POS_T j = 0; j < 8; ++j)
@@ -209,9 +209,9 @@ private:
         have_beats = have_beats_before;
     }
 
-    void find_turns(const POS_T x, const POS_T y, const vector<vector<POS_T>> &mtx) // поиск хода от позиции
+    void find_turns(const POS_T x, const POS_T y, const vector<vector<POS_T>> &mtx) // РїРѕРёСЃРє С…РѕРґР° РѕС‚ РїРѕР·РёС†РёРё
     {
-        turns.clear(); // Логика движений шашки и дамки
+        turns.clear(); // Р›РѕРіРёРєР° РґРІРёР¶РµРЅРёР№ С€Р°С€РєРё Рё РґР°РјРєРё
         have_beats = false;
         POS_T type = mtx[x][y];
         // check beats
@@ -299,12 +299,12 @@ private:
         }
     }
 
-  public: // Ходы с съеданием шашки и макс глубина хода бота
+  public: // РҐРѕРґС‹ СЃ СЃСЉРµРґР°РЅРёРµРј С€Р°С€РєРё Рё РјР°РєСЃ РіР»СѓР±РёРЅР° С…РѕРґР° Р±РѕС‚Р°
     vector<move_pos> turns;
     bool have_beats;
     int Max_depth;
 
-  private: //Указатели на ориг
+  private: //РЈРєР°Р·Р°С‚РµР»Рё РЅР° РѕСЂРёРі
     default_random_engine rand_eng;
     string scoring_mode;
     string optimization;
